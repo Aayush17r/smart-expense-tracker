@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Smart Expense Tracker — Login</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="page-center">
+  <div class="card auth-card">
+    
+    <h2>Smart Expense Tracker</h2>
+    <p class="muted">Log in or create an account to manage your expenses smartly.</p>
+
+    <form id="loginForm" class="form">
+      <label>
+        Username
+        <input type="text" id="username" required placeholder="Enter username"/>
+      </label>
+
+      <label>
+        Password
+        <input type="password" id="password" required placeholder="Enter password"/>
+      </label>
+
+      <div class="actions">
+        <button type="submit" class="btn">Login</button>
+        <button type="button" id="signupBtn" class="btn outline">Sign up</button>
+      </div>
+    </form>
+
+  </div>
+
+  <script>
+  
+    const loginForm = document.getElementById('loginForm');
+    const signupBtn = document.getElementById('signupBtn');
+
+    function getUsers() {
+      return JSON.parse(localStorage.getItem('set_users_v2') || '{}');
+    }
+    function saveUsers(users) {
+      localStorage.setItem('set_users_v2', JSON.stringify(users));
+    }
+
+    signupBtn.addEventListener('click', () => {
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value.trim();
+      if (!u || !p) {
+         alert('Please enter username & password to signup'); 
+         return; 
+        }
+      const users = getUsers();
+      if (users[u]) { 
+        alert('User exists — try login or choose another username'); 
+        return; 
+      }
+      users[u] = btoa(p); // pseudo-hash for demo
+      saveUsers(users);
+      alert('Signup done. Now press Login.');
+    });
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value.trim();
+      const users = getUsers();
+      if (users[u]) {
+        if (users[u] === btoa(p)) {
+          localStorage.setItem('loggedUser', JSON.stringify({ username: u }));
+          window.location.href = './home.html';
+        } else {
+          alert('Wrong password. Try again.');
+        }
+      } else {
+        if (confirm('User not found. Create new account?')) {
+          users[u] = btoa(p);
+          saveUsers(users);
+          localStorage.setItem('loggedUser', JSON.stringify({ username: u }));
+          window.location.href = './home.html';
+        }
+      }
+    });
+
+    // If already logged in, redirect
+    (function(){ if (localStorage.getItem('loggedUser')) window.location.href='./home.html'; })();
+  </script>
+</body>
+</html>

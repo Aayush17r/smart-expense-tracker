@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>User Profile</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <h1>User Profile</h1>
+    <p class="small muted">Your account details</p>
+  </div>
+
+  <div class="top-actions">
+    <button onclick="window.location.href='home.html'" class="btn outline">← Back</button>
+  </div>
+</header>
+
+<main class="container">
+  <section class="panel left">
+
+    <div class="card">
+      <h3>Basic Information</h3>
+      <div class="profile-block">
+        <img id="profilePic" class="profile-pic" src="https://i.ibb.co/31y38d5/user.png">
+        <div>
+          <div class="small muted">Username</div>
+          <div id="p_username" class="profile-text"></div>
+
+          <div class="small muted" style="margin-top:10px;">Joined On</div>
+          <div id="p_joined" class="profile-text"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Financial Settings</h3>
+
+      <label>
+        Monthly Salary (₹)
+        <input type="number" id="p_salary" />
+      </label>
+
+      <label>
+        Saving Goal (₹)
+        <input type="number" id="p_goal" />
+      </label>
+
+      <button id="saveFinance" class="btn" style="margin-top:10px;">Save Changes</button>
+    </div>
+
+    <div class="card">
+      <h3>Insights</h3>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="muted small">Total Expenses</div>
+          <div id="p_total_exp">₹0</div>
+        </div>
+        <div class="summary-item">
+          <div class="muted small">This Month</div>
+          <div id="p_month_exp">₹0</div>
+        </div>
+        <div class="summary-item">
+          <div class="muted small">Top Category</div>
+          <div id="p_top_cat">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card danger-card">
+      <h3>Security</h3>
+
+      <button id="changePass" class="btn outline">Change Password</button>
+      <button id="deleteAcc" class="btn outline" style="margin-top:10px;">Delete Account</button>
+    </div>
+
+  </section>
+</main>
+
+<script src="profile.js"></script>
+</body>
+</html>

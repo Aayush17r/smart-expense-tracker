@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Smart Expense Tracker — Dashboard</title>
+  <link rel="stylesheet" href="style.css"/>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>  <!-- for PDF -->
+
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <h1>Smart Expense Tracker</h1>
+      <p id="welcomeText" class="small muted">Welcome</p>
+    </div>
+
+      <div class="top-actions">
+        <div class="profile-avatar" onclick="window.location.href='profile.html'">
+        <svg class="profile-inner-icon" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="4"></circle>
+        <path d="M4 20c0-4 4-6 8-6s8 2 8 6"></path>
+        </svg>
+        </div>
+
+        <input type="text" id="searchInput" placeholder="Search expenses..." />
+
+        <label class="switch">
+          <input type="checkbox" id="themeToggle" />
+          <span class="slider"></span>
+        </label>
+        <span class="toggle-text">Dark mode</span>
+
+        <button id="resetBtn" class="btn outline">Reset App</button>
+        <button id="logoutBtn" class="btn outline">Logout</button>
+      </div>
+  </header>
+
+  <main class="container">
+    <!-- Left column -->
+    <section class="panel left">
+      <div class="card">
+        <h3>Add / Edit Expense</h3>
+        <form id="expenseForm" class="form">
+          <label>Amount (₹)
+            <input type="number" id="amount" min="0" step="1" required placeholder="500" />
+          </label>
+
+          <label>Category
+            <select id="category">
+              <option value="Food">Food</option>
+              <option value="Travel">Travel</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Rent">Rent</option>
+              <option value="Bills">Bills</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+
+          <label>Date
+            <input type="date" id="date" required />
+          </label>
+
+          <div class="row">
+            <button type="submit" class="btn" id="addBtn">Add Expense</button>
+            <button type="button" id="cancelEditBtn" class="btn outline" style="display:none;">Cancel Edit</button>
+            <button type="button" id="clearAll" class="btn outline">Clear All</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>Filters</h3>
+        <div class="row" style="gap:8px;">
+          <select id="filterCategory">
+            <option value="All">All Categories</option>
+            <option>Food</option><option>Travel</option><option>Shopping</option><option>Rent</option>
+            <option>Bills</option><option>Entertainment</option><option>Other</option>
+          </select>
+
+          <select id="filterMonth">
+            <option value="All">All Months</option>
+            <option value="this">This Month</option>
+            <option value="last">Last Month</option>
+          </select>
+
+          <button id="applyFilter" class="btn">Apply</button>
+          <button id="resetFilter" class="btn outline">Reset</button>
+
+          <input type="number" id="minAmount" placeholder="Min ₹" style="width:120px;">
+          <input type="number" id="maxAmount" placeholder="Max ₹" style="width:120px;">
+
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Expenses List</h3>
+        <table id="expenseTable" class="table">
+          <thead>
+            <tr><th>Date</th><th>Category</th><th>Amount (₹)</th><th>Action</th></tr>
+          </thead>
+          <tbody><!-- injected --></tbody>
+        </table>
+        <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
+          <button id="exportCsv" class="btn">Export CSV</button>
+
+          <!-- PDF export -->
+          <select id="pdfCount" title="How many recent items to include" style="padding:6px;border-radius:6px;background:var(--card);color:var(--muted);border:1px solid rgba(0,0,0,0.15)">
+            <option value="all">All items</option>
+            <option value="10">Last 10 items</option>
+            <option value="20">Last 20 items</option>
+          </select>
+          <button id="exportPdf" class="btn">Export PDF</button>
+        </div>
+
+      </div>
+
+      <!-- CHART GRID BELOW EXPENSES -->
+      <div class="chart-grid">
+        <div class="card chart-card">
+          <h3>Category Share</h3>
+          <canvas id="pieChart"></canvas>
+        </div>
+
+        <div class="card chart-card">
+          <h3>Monthly Trend (6 months)</h3>
+          <canvas id="monthlyLineChart"></canvas>
+        </div>
+
+        <div class="card chart-card">
+          <h3>Daily Trend (This Month)</h3>
+          <canvas id="dailyLineChart"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Right column -->
+    <aside class="panel right">
+      <div class="card">
+        <h3>Summary</h3>
+        <div class="row" style="gap:8px;align-items:center;">
+          <label style="flex:1;">
+            Monthly Salary (₹)
+            <input type="number" id="salaryInput" min="0" placeholder="Enter salary" />
+          </label>
+          <label style="flex:1;">
+            Saving Goal (₹)
+            <input type="number" id="goalInput" min="0" placeholder="Enter saving goal" />
+          </label>
+        </div>
+
+        <div class="summary-grid" style="margin-top:12px;">
+          <div class="summary-item">
+            <div class="muted small">Total Expense</div>
+            <div id="totalExpense">₹0</div>
+          </div>
+          <div class="summary-item">
+            <div class="muted small">This Month</div>
+            <div id="thisMonth">₹0</div>
+          </div>
+          <div class="summary-item">
+            <div class="muted small">Savings</div>
+            <div id="savings">₹0</div>
+          </div>
+          <div class="summary-item">
+            <div class="muted small">Highest Category</div>
+            <div id="topCategory">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Category Budgets</h3>
+        <p class="small muted">Set monthly budgets per category (optional)</p>
+        <div id="budgetsForm">
+          <!-- auto-generated inputs by JS -->
+        </div>
+        <div style="margin-top:8px;">
+          <button id="saveBudgets" class="btn">Save Budgets</button>
+          <button id="clearBudgets" class="btn outline">Clear Budgets</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Savings Projection</h3>
+        <p class="small muted">Based on your salary & spending trends</p>
+  
+        <div class="summary-grid" style="margin-top:12px;">
+          <div class="summary-item">
+            <div class="muted small">Avg Monthly Spend</div>
+            <div id="avgMonthlySpend">₹0</div>
+          </div>
+
+          <div class="summary-item">
+            <div class="muted small">Projected 6-month Savings</div>
+            <div id="projectedSavings">₹0</div>
+          </div>
+
+          <div class="summary-item">
+            <div class="muted small">Salary Survival Days</div>
+            <div id="survivalDays">—</div>
+          </div>
+        </div>
+
+        <canvas id="projectionChart" height="130" style="margin-top:12px;"></canvas>
+      </div>
+
+      <div class="card">
+        <h3>AI Tips</h3>
+        <div id="aiTips" class="ai-box">Add expenses to get smart tips.</div>
+        <button id="showMoreTips" class="btn outline" style="margin-top:8px; display:none;">Show More Tips</button>
+      </div>
+
+    </aside>
+  </main>
+
+  <footer class="footer muted">
+    © 2025 Smart Expense Tracker — Designed for smarter financial decisions.
+  </footer>
+
+  <div id="toastContainer"></div>
+  
+  <script src="script.js"></script>
+</body>
+</html>
